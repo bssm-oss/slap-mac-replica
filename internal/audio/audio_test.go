@@ -22,6 +22,20 @@ func TestResolveBuiltinSound(t *testing.T) {
 	}
 }
 
+func TestResolveGangnamMode(t *testing.T) {
+	path, label, err := Resolve(GangnamMode)
+	if err != nil {
+		t.Fatalf("Resolve returned error: %v", err)
+	}
+
+	if label != "gangnam-short" {
+		t.Fatalf("expected label gangnam-short, got %q", label)
+	}
+	if path != "say:"+shortGangnamPhrase {
+		t.Fatalf("expected speech path, got %q", path)
+	}
+}
+
 func TestResolveCustomSoundPath(t *testing.T) {
 	dir := t.TempDir()
 	customPath := filepath.Join(dir, "custom.wav")
@@ -45,5 +59,17 @@ func TestResolveCustomSoundPath(t *testing.T) {
 func TestResolveRejectsUnknownSound(t *testing.T) {
 	if _, _, err := Resolve("definitely-not-a-real-sound"); err == nil {
 		t.Fatal("expected Resolve to fail for unknown sound")
+	}
+}
+
+func TestIsGangnamMode(t *testing.T) {
+	if !IsGangnamMode("") {
+		t.Fatal("expected empty sound to enable gangnam mode")
+	}
+	if !IsGangnamMode("gangnam") {
+		t.Fatal("expected gangnam mode to be enabled")
+	}
+	if IsGangnamMode("Sosumi") {
+		t.Fatal("did not expect built-in afplay sound to be treated as gangnam mode")
 	}
 }

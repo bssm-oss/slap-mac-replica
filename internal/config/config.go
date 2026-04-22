@@ -32,7 +32,7 @@ type RunConfig struct {
 const (
 	defaultThreshold = 0.05
 	defaultCooldown  = 750 * time.Millisecond
-	defaultSound     = "Glass"
+	defaultSound     = "gangnam"
 )
 
 // Parse parses command-line arguments.
@@ -68,7 +68,7 @@ func Usage(version string) string {
 Apple Silicon MacBook 의 숨겨진 가속도계를 읽어 노트북을 칠 때 소리를 재생합니다.
 
 사용법:
-  slap-mac-replica run [--threshold 0.05] [--cooldown 750ms] [--sound Glass]
+  slap-mac-replica run [--threshold 0.05] [--cooldown 750ms] [--sound gangnam]
   slap-mac-replica doctor
   slap-mac-replica help
   slap-mac-replica version
@@ -80,10 +80,11 @@ Apple Silicon MacBook 의 숨겨진 가속도계를 읽어 노트북을 칠 때 
 run 옵션:
   --threshold float    감지 임계값 (기본값: %.2f)
   --cooldown duration  재생 쿨다운 (기본값: %s)
-  --sound value        내장 사운드 이름 또는 사용자 파일 경로 (기본값: %s)
+  --sound value        gangnam, 내장 사운드 이름, 또는 사용자 파일 경로 (기본값: %s)
 
 예시:
   sudo slap-mac-replica run
+  sudo slap-mac-replica run --sound gangnam
   sudo slap-mac-replica run --sound Sosumi
   sudo slap-mac-replica run --sound /path/to/custom.wav
   slap-mac-replica doctor

@@ -14,7 +14,7 @@
 
 - Apple Silicon MacBook 의 숨겨진 가속도계 존재 여부 점검 (`doctor`)
 - 루트 권한으로 slap 감지 루프 실행 (`run`)
-- 감지 시 macOS 내장 사운드 또는 사용자 지정 오디오 파일 재생
+- 기본 한국어 음성 반응 또는 사용자 지정 오디오 파일 재생
 - `brew services` 로 root LaunchDaemon 형태로 상시 실행 가능
 
 ## 기술 스택
@@ -87,11 +87,13 @@ sudo ./slap-mac-replica run
 slap-mac-replica doctor
 ```
 
-기본 사운드로 실행:
+기본 음성 모드로 실행:
 
 ```bash
 sudo slap-mac-replica run
 ```
+
+기본 모드에서는 짧게 치면 `오빠 강남스타일`, 짧은 시간 안에 연속으로 3회 이상 치면 `예~~~` 를 말합니다.
 
 다른 내장 사운드 사용:
 
@@ -103,6 +105,12 @@ sudo slap-mac-replica run --sound Sosumi
 
 ```bash
 sudo slap-mac-replica run --sound /absolute/path/to/custom.wav
+```
+
+기본 강남 음성 모드를 명시적으로 다시 켜기:
+
+```bash
+sudo slap-mac-replica run --sound gangnam
 ```
 
 임계값과 쿨다운 조정:
@@ -124,6 +132,11 @@ go build ./cmd/slap-mac-replica
 - `slap-mac-replica doctor`: 현재 Mac 이 slap 감지 가능한 하드웨어인지 점검
 - `slap-mac-replica run`: slap 감지 루프 시작
 - `brew services start slap-mac-replica`: root LaunchDaemon 으로 등록해 상시 실행
+
+## 기본 음성 반응
+
+- 짧은 slap: `오빠 강남스타일`
+- 짧은 시간 안의 연속 slap 3회 이상: `예~~~`
 
 ## 지원하는 내장 사운드
 
@@ -161,7 +174,7 @@ docs/changes/              변경 기록
 2. `run` 은 root 권한으로 `sensor.Run(...)` 을 띄워 IOKit HID 센서 데이터를 shared memory 로 받습니다.
 3. 이벤트 루프는 shared memory 의 새로운 가속도계 샘플을 읽습니다.
 4. `detector.New()` 기반 감지기가 slap 이벤트와 amplitude 를 계산합니다.
-5. amplitude 가 임계값을 넘으면 `afplay` 로 선택한 사운드를 재생합니다.
+5. amplitude 가 임계값을 넘으면 기본 모드에서는 `say`, 다른 사운드 모드에서는 `afplay` 로 선택한 오디오를 재생합니다.
 
 ## 개발 원칙
 
