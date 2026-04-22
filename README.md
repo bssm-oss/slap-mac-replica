@@ -1,0 +1,200 @@
+# slap-mac-replica
+
+`slap-mac-replica` 는 Apple Silicon MacBook 의 숨겨진 `AppleSPUHIDDevice` 가속도계를 읽어서, 노트북을 실제로 쳤을 때 소리를 재생하는 macOS CLI 도구입니다.
+
+이 저장소는 "Slap Mac" 류의 앱이 하는 핵심 동작을 오픈소스 기준으로 재현하는 것을 목표로 합니다. 현재 버전은 GUI 대신 단일 바이너리와 Homebrew 서비스 흐름에 집중합니다.
+
+## 무엇을 해결하나
+
+- Apple Silicon MacBook 에서 실제 물리 충격을 감지하고 싶다
+- 외부 앱 없이, 설치와 실행 경로가 단순한 slap 감지 도구가 필요하다
+- `brew install` 과 `brew services` 기반으로 쉽게 올리고 내리고 싶다
+
+## 핵심 기능
+
+- Apple Silicon MacBook 의 숨겨진 가속도계 존재 여부 점검 (`doctor`)
+- 루트 권한으로 slap 감지 루프 실행 (`run`)
+- 감지 시 macOS 내장 사운드 또는 사용자 지정 오디오 파일 재생
+- `brew services` 로 root LaunchDaemon 형태로 상시 실행 가능
+
+## 기술 스택
+
+- Go 1.26
+- `github.com/taigrr/apple-silicon-accelerometer`
+- macOS IOKit HID
+- GitHub Actions
+- Homebrew Formula
+
+## 요구 환경 / 사전 준비사항
+
+- macOS
+- Apple Silicon MacBook
+- 관리자 권한
+- Homebrew (선택 사항이지만 권장)
+
+## 설치 방법
+
+### 1. Homebrew 로 설치
+
+릴리즈가 올라가 있으면 아래 명령으로 설치할 수 있습니다.
+
+```bash
+brew install --formula https://raw.githubusercontent.com/bssm-oss/slap-mac-replica/main/Formula/slap-mac-replica.rb
+```
+
+설치 뒤 환경 점검:
+
+```bash
+slap-mac-replica doctor
+```
+
+즉시 실행:
+
+```bash
+sudo slap-mac-replica run
+```
+
+부팅 후에도 계속 실행:
+
+```bash
+sudo brew services start slap-mac-replica
+```
+
+중지:
+
+```bash
+sudo brew services stop slap-mac-replica
+```
+
+### 2. 소스에서 직접 실행
+
+```bash
+go build ./cmd/slap-mac-replica
+./slap-mac-replica doctor
+sudo ./slap-mac-replica run
+```
+
+## 환경변수 설명
+
+현재 필수 환경변수는 없습니다.
+
+## 로컬 실행 방법
+
+환경 점검:
+
+```bash
+slap-mac-replica doctor
+```
+
+기본 사운드로 실행:
+
+```bash
+sudo slap-mac-replica run
+```
+
+다른 내장 사운드 사용:
+
+```bash
+sudo slap-mac-replica run --sound Sosumi
+```
+
+사용자 지정 오디오 파일 사용:
+
+```bash
+sudo slap-mac-replica run --sound /absolute/path/to/custom.wav
+```
+
+임계값과 쿨다운 조정:
+
+```bash
+sudo slap-mac-replica run --threshold 0.08 --cooldown 1s
+```
+
+## 테스트 실행 방법
+
+```bash
+go test ./...
+go vet ./...
+go build ./cmd/slap-mac-replica
+```
+
+## 주요 스크립트 / 명령 설명
+
+- `slap-mac-replica doctor`: 현재 Mac 이 slap 감지 가능한 하드웨어인지 점검
+- `slap-mac-replica run`: slap 감지 루프 시작
+- `brew services start slap-mac-replica`: root LaunchDaemon 으로 등록해 상시 실행
+
+## 지원하는 내장 사운드
+
+- `Basso`
+- `Blow`
+- `Bottle`
+- `Frog`
+- `Funk`
+- `Glass`
+- `Hero`
+- `Morse`
+- `Ping`
+- `Pop`
+- `Purr`
+- `Sosumi`
+- `Submarine`
+- `Tink`
+
+## 폴더 구조
+
+```text
+cmd/slap-mac-replica/      메인 엔트리포인트
+internal/app/              실행 루프와 doctor 명령
+internal/audio/            사운드 경로 해석과 재생
+internal/config/           CLI 파싱
+internal/platform/         하드웨어 점검 유틸리티
+Formula/                   Homebrew formula
+.github/workflows/         CI
+docs/changes/              변경 기록
+```
+
+## 아키텍처 개요
+
+1. `doctor` 는 `ioreg` 를 읽어 `AppleSPUHIDDevice` 존재 여부를 점검합니다.
+2. `run` 은 root 권한으로 `sensor.Run(...)` 을 띄워 IOKit HID 센서 데이터를 shared memory 로 받습니다.
+3. 이벤트 루프는 shared memory 의 새로운 가속도계 샘플을 읽습니다.
+4. `detector.New()` 기반 감지기가 slap 이벤트와 amplitude 를 계산합니다.
+5. amplitude 가 임계값을 넘으면 `afplay` 로 선택한 사운드를 재생합니다.
+
+## 개발 원칙
+
+- 구현보다 검증을 우선합니다.
+- 실제 하드웨어 제약을 문서로 숨기지 않습니다.
+- 루트 권한이 필요한 이유를 코드와 문서에 명시합니다.
+- macOS 전용 제약은 런타임과 문서 양쪽에서 모두 드러냅니다.
+
+## 기여 방법
+
+1. 브랜치를 만듭니다.
+2. 테스트를 추가하거나 수정합니다.
+3. `go test ./...`, `go vet ./...`, `go build ./cmd/slap-mac-replica` 를 실행합니다.
+4. 문서가 실제 동작과 일치하는지 확인합니다.
+5. Pull Request 를 엽니다.
+
+## CI 개요
+
+GitHub Actions 가 macOS 러너에서 아래 항목을 검증합니다.
+
+- `go test ./...`
+- `go vet ./...`
+- `go build ./cmd/slap-mac-replica`
+
+## 알려진 제한 사항
+
+- Apple Silicon MacBook 에서만 동작합니다.
+- 센서 접근이 문서화되지 않은 IOKit HID 경로라서 root 권한이 필요합니다.
+- 현재는 GUI 가 아니라 CLI + Homebrew 서비스 모델입니다.
+- 이 환경에서는 관리자 비밀번호가 없어 실제 root slap 감지를 자동 검증할 수 없었습니다.
+
+## 향후 계획 / 로드맵
+
+- 관리자 프롬프트를 동반한 root helper 설치 흐름
+- 다중 사운드 프로필과 사용자 설정 파일
+- 더 정교한 민감도 보정
+- GUI 래퍼 또는 menubar 앱
