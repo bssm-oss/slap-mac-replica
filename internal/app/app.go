@@ -21,6 +21,8 @@ const (
 	sensorStartupDelay = 100 * time.Millisecond
 	pollInterval       = 10 * time.Millisecond
 	maxBatchSize       = 200
+	rapidSlapWindow    = 2500 * time.Millisecond
+	rapidSlapCount     = 3
 )
 
 // Execute runs the requested command.
@@ -41,15 +43,14 @@ func runDoctor(stdout io.Writer) error {
 		return err
 	}
 
-	player, err := audio.NewPlayer("")
-	if err != nil {
-		return err
-	}
+	shortPlayer := audio.NewGangnamShortPlayer()
+	longPlayer := audio.NewGangnamLongPlayer()
 
 	fmt.Fprintf(stdout, "platform: %s/%s\n", runtime.GOOS, runtime.GOARCH)
 	fmt.Fprintf(stdout, "root: %t\n", os.Geteuid() == 0)
 	fmt.Fprintf(stdout, "sensor: %t (%s)\n", status.Present, status.Summary)
-	fmt.Fprintf(stdout, "default_sound: %s (%s)\n", player.Description(), player.Path())
+	fmt.Fprintf(stdout, "default_sound: %s (%s)\n", shortPlayer.Description(), shortPlayer.Path())
+	fmt.Fprintf(stdout, "rapid_sound: %s (%s)\n", longPlayer.Description(), longPlayer.Path())
 
 	switch {
 	case runtime.GOOS != "darwin":
@@ -86,9 +87,15 @@ func runDetector(ctx context.Context, cfg config.RunConfig, stdout, stderr io.Wr
 		return errors.New("AppleSPUHIDDevice sensor not found; this Mac does not appear to expose the required accelerometer")
 	}
 
-	player, err := audio.NewPlayer(cfg.Sound)
-	if err != nil {
-		return err
+	shortPlayer := audio.NewGangnamShortPlayer()
+	longPlayer := audio.NewGangnamLongPlayer()
+	if !audio.IsGangnamMode(cfg.Sound) {
+		player, playerErr := audio.NewPlayer(cfg.Sound)
+		if playerErr != nil {
+			return playerErr
+		}
+		shortPlayer = player
+		longPlayer = player
 	}
 
 	accelRing, err := shm.CreateRing(shm.NameAccel)
@@ -117,8 +124,9 @@ func runDetector(ctx context.Context, cfg config.RunConfig, stdout, stderr io.Wr
 	var lastTotal uint64
 	var lastEventTime time.Time
 	var lastPlayback time.Time
+	var slapHistory []time.Time
 
-	fmt.Fprintf(stdout, "listening for slaps with threshold=%.3fg cooldown=%s sound=%s\n", cfg.Threshold, cfg.Cooldown, player.Description())
+	fmt.Fprintf(stdout, "listening for slaps with threshold=%.3fg cooldown=%s short_sound=%s rapid_sound=%s\n", cfg.Threshold, cfg.Cooldown, shortPlayer.Description(), longPlayer.Description())
 
 	for {
 		select {
@@ -164,13 +172,35 @@ func runDetector(ctx context.Context, cfg config.RunConfig, stdout, stderr io.Wr
 		}
 
 		lastPlayback = now
-		fmt.Fprintf(stdout, "slap detected: amplitude=%.5fg severity=%s sound=%s\n", event.Amplitude, event.Severity, player.Description())
-		go func() {
+		slapHistory = updateRecentSlapHistory(slapHistory, now)
+		selectedPlayer := shortPlayer
+		if isRapidSlapSequence(slapHistory) {
+			selectedPlayer = longPlayer
+		}
+
+		fmt.Fprintf(stdout, "slap detected: amplitude=%.5fg severity=%s sound=%s\n", event.Amplitude, event.Severity, selectedPlayer.Description())
+		go func(player audio.Player) {
 			playCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
 			if playErr := player.Play(playCtx); playErr != nil {
 				fmt.Fprintf(stderr, "playback failed: %v\n", playErr)
 			}
-		}()
+		}(selectedPlayer)
 	}
+}
+
+func updateRecentSlapHistory(history []time.Time, now time.Time) []time.Time {
+	kept := history[:0]
+	cutoff := now.Add(-rapidSlapWindow)
+	for _, ts := range history {
+		if !ts.Before(cutoff) {
+			kept = append(kept, ts)
+		}
+	}
+	kept = append(kept, now)
+	return kept
+}
+
+func isRapidSlapSequence(history []time.Time) bool {
+	return len(history) >= rapidSlapCount
 }
