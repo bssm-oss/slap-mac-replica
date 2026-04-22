@@ -16,7 +16,9 @@ sudo ./slap-mac-replica run
 
 ## 설치 / 실행 / 테스트 명령
 
-- 설치: `brew install --formula https://raw.githubusercontent.com/bssm-oss/slap-mac-replica/main/Formula/slap-mac-replica.rb`
+- 설치:
+  `brew tap bssm-oss/slap-mac-replica https://github.com/bssm-oss/slap-mac-replica`
+  `brew install bssm-oss/slap-mac-replica/slap-mac-replica`
 - 환경 점검: `slap-mac-replica doctor`
 - 실행: `sudo slap-mac-replica run`
 - 서비스 실행: `sudo brew services start slap-mac-replica`

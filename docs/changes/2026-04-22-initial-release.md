@@ -16,6 +16,7 @@
 - `doctor` 명령으로 센서 존재 여부를 점검할 수 있게 했습니다.
 - `run` 명령으로 root 권한 slap 감지 루프와 사운드 재생을 구현했습니다.
 - Homebrew formula 와 `brew services` service 정의를 추가했습니다.
+- GitHub release 바이너리 자산 기준 sha256 과 tap 설치 흐름을 맞췄습니다.
 - 한국어 README 와 AI 작업 지침용 `AGENTS.md` 를 작성했습니다.
 - macOS GitHub Actions CI 를 추가했습니다.
 

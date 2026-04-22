@@ -39,7 +39,8 @@
 릴리즈가 올라가 있으면 아래 명령으로 설치할 수 있습니다.
 
 ```bash
-brew install --formula https://raw.githubusercontent.com/bssm-oss/slap-mac-replica/main/Formula/slap-mac-replica.rb
+brew tap bssm-oss/slap-mac-replica https://github.com/bssm-oss/slap-mac-replica
+brew install bssm-oss/slap-mac-replica/slap-mac-replica
 ```
 
 설치 뒤 환경 점검:
@@ -191,6 +192,7 @@ GitHub Actions 가 macOS 러너에서 아래 항목을 검증합니다.
 - 센서 접근이 문서화되지 않은 IOKit HID 경로라서 root 권한이 필요합니다.
 - 현재는 GUI 가 아니라 CLI + Homebrew 서비스 모델입니다.
 - 이 환경에서는 관리자 비밀번호가 없어 실제 root slap 감지를 자동 검증할 수 없었습니다.
+- `brew services` 로 slap 감지를 켜려면 `sudo brew services start slap-mac-replica` 처럼 root 로 실행해야 합니다.
 
 ## 향후 계획 / 로드맵
 
