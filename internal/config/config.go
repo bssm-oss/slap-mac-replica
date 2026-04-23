@@ -24,9 +24,11 @@ type Config struct {
 
 // RunConfig holds runtime settings for slap detection.
 type RunConfig struct {
-	Threshold float64
-	Cooldown  time.Duration
-	Sound     string
+	Threshold  float64
+	Cooldown   time.Duration
+	Sound      string
+	ShortSound string
+	RapidSound string
 }
 
 const (
@@ -69,6 +71,7 @@ Apple Silicon MacBook 의 숨겨진 가속도계를 읽어 노트북을 칠 때 
 
 사용법:
   slap-mac-replica run [--threshold 0.05] [--cooldown 750ms] [--sound gangnam]
+  slap-mac-replica run --short-sound /path/to/oppa.wav --rapid-sound /path/to/yeah.wav
   slap-mac-replica doctor
   slap-mac-replica help
   slap-mac-replica version
@@ -81,6 +84,8 @@ run 옵션:
   --threshold float    감지 임계값 (기본값: %.2f)
   --cooldown duration  재생 쿨다운 (기본값: %s)
   --sound value        gangnam, 내장 사운드 이름, 또는 사용자 파일 경로 (기본값: %s)
+  --short-sound value  짧은 slap 전용 사용자 파일 또는 내장 사운드
+  --rapid-sound value  연속 slap 전용 사용자 파일 또는 내장 사운드
 
 예시:
   sudo slap-mac-replica run
@@ -103,6 +108,8 @@ func parseRun(args []string) (Config, error) {
 	fs.Float64Var(&runCfg.Threshold, "threshold", runCfg.Threshold, "minimum amplitude threshold in g")
 	fs.DurationVar(&runCfg.Cooldown, "cooldown", runCfg.Cooldown, "cooldown between sound triggers")
 	fs.StringVar(&runCfg.Sound, "sound", runCfg.Sound, "built-in sound name or custom file path")
+	fs.StringVar(&runCfg.ShortSound, "short-sound", runCfg.ShortSound, "sound for normal short slaps")
+	fs.StringVar(&runCfg.RapidSound, "rapid-sound", runCfg.RapidSound, "sound for rapid repeated slaps")
 
 	if err := fs.Parse(args); err != nil {
 		return Config{}, err

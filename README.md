@@ -113,6 +113,16 @@ sudo slap-mac-replica run --sound /absolute/path/to/custom.wav
 sudo slap-mac-replica run --sound gangnam
 ```
 
+권리가 있는 로컬 오디오 클립을 짧은 slap/연속 slap 에 각각 쓰기:
+
+```bash
+sudo slap-mac-replica run \
+  --short-sound /absolute/path/to/oppa.wav \
+  --rapid-sound /absolute/path/to/yeah.wav
+```
+
+저작권이 있는 원곡에서 무단 추출한 클립을 저장소에 포함하거나 배포하지 마십시오. 직접 녹음했거나 사용 권리가 있는 파일만 지정해야 합니다.
+
 임계값과 쿨다운 조정:
 
 ```bash
@@ -137,6 +147,7 @@ go build ./cmd/slap-mac-replica
 
 - 짧은 slap: `오빠 강남스타일`
 - 짧은 시간 안의 연속 slap 3회 이상: `예~~~`
+- 권리가 있는 로컬 클립을 쓰려면 `--short-sound`, `--rapid-sound` 를 지정합니다.
 
 ## 지원하는 내장 사운드
 
