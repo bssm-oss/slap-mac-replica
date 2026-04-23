@@ -27,7 +27,7 @@ func TestParseDefaultsToRun(t *testing.T) {
 }
 
 func TestParseRunFlags(t *testing.T) {
-	cfg, err := Parse([]string{"run", "--threshold", "0.12", "--cooldown", "2s", "--sound", "Sosumi"})
+	cfg, err := Parse([]string{"run", "--threshold", "0.12", "--cooldown", "2s", "--sound", "Sosumi", "--short-sound", "/tmp/oppa.wav", "--rapid-sound", "/tmp/yeah.wav"})
 	if err != nil {
 		t.Fatalf("Parse returned error: %v", err)
 	}
@@ -40,6 +40,12 @@ func TestParseRunFlags(t *testing.T) {
 	}
 	if cfg.Run.Sound != "Sosumi" {
 		t.Fatalf("expected sound Sosumi, got %q", cfg.Run.Sound)
+	}
+	if cfg.Run.ShortSound != "/tmp/oppa.wav" {
+		t.Fatalf("expected short sound path, got %q", cfg.Run.ShortSound)
+	}
+	if cfg.Run.RapidSound != "/tmp/yeah.wav" {
+		t.Fatalf("expected rapid sound path, got %q", cfg.Run.RapidSound)
 	}
 }
 
