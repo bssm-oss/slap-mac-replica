@@ -15,6 +15,7 @@
 - Apple Silicon MacBook 의 숨겨진 가속도계 존재 여부 점검 (`doctor`)
 - 루트 권한으로 slap 감지 루프 실행 (`run`)
 - 기본 한국어 음성 반응 또는 사용자 지정 오디오 파일 재생
+- GitHub 릴리즈/Homebrew 설치 시 효과음 프리셋 함께 제공
 - `brew services` 로 root LaunchDaemon 형태로 상시 실행 가능
 
 ## 기술 스택
@@ -64,7 +65,7 @@ sudo slap-mac-replica run \
 
 `--short-sound` 는 짧게 칠 때 나오는 파일이고, `--rapid-sound` 는 연속으로 칠 때 나오는 파일입니다. `afplay` 가 재생할 수 있는 `wav`, `aiff`, `mp3` 등을 사용할 수 있습니다.
 
-데스크톱의 `효과음` 폴더를 프리셋처럼 쓰려면:
+기본 포함 프리셋을 쓰려면:
 
 ```bash
 slap-mac-replica presets
@@ -196,7 +197,7 @@ sudo slap-mac-replica run \
 
 저작권이 있는 원곡에서 무단 추출한 클립을 저장소에 포함하거나 배포하지 마십시오. 직접 녹음했거나 사용 권리가 있는 파일만 지정해야 합니다.
 
-데스크톱 `효과음` 폴더의 음원을 프리셋으로 선택하기:
+포함된 효과음 프리셋 선택하기:
 
 ```bash
 slap-mac-replica presets
@@ -205,7 +206,7 @@ sudo slap-mac-replica run --preset gopgopgop
 sudo slap-mac-replica run --preset random
 ```
 
-기본 프리셋 폴더는 `/Users/heodongun/Desktop/효과음` 입니다. 다른 폴더를 쓰려면 `--preset-dir` 를 지정합니다.
+GitHub 릴리즈와 Homebrew 설치본에는 프리셋 MP3가 함께 들어갑니다. 다른 폴더를 쓰려면 `--preset-dir` 를 지정합니다.
 
 ```bash
 slap-mac-replica presets --preset-dir /absolute/path/to/effects
