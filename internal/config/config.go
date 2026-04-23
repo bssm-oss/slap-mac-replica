@@ -18,8 +18,9 @@ var (
 
 // Config is the parsed command-line configuration.
 type Config struct {
-	Command string
-	Run     RunConfig
+	Command   string
+	Run       RunConfig
+	PresetDir string
 }
 
 // RunConfig holds runtime settings for slap detection.
@@ -29,6 +30,8 @@ type RunConfig struct {
 	Sound      string
 	ShortSound string
 	RapidSound string
+	Preset     string
+	PresetDir  string
 }
 
 const (
@@ -51,6 +54,8 @@ func Parse(args []string) (Config, error) {
 			return Config{}, ErrHelpRequested
 		}
 		return Config{Command: "doctor"}, nil
+	case "presets":
+		return parsePresets(args[1:])
 	case "help", "-h", "--help":
 		return Config{}, ErrHelpRequested
 	case "version", "-v", "--version":
@@ -72,12 +77,15 @@ Apple Silicon MacBook 의 숨겨진 가속도계를 읽어 노트북을 칠 때 
 사용법:
   slap-mac-replica run [--threshold 0.05] [--cooldown 750ms] [--sound gangnam]
   slap-mac-replica run --short-sound /path/to/oppa.wav --rapid-sound /path/to/yeah.wav
+  slap-mac-replica run --preset op-gangnam-style
+  slap-mac-replica presets
   slap-mac-replica doctor
   slap-mac-replica help
   slap-mac-replica version
 
 설명:
   run     root 권한으로 센서를 읽고 slap 감지를 시작합니다.
+  presets 로컬 효과음 프리셋 목록을 보여줍니다.
   doctor  현재 Mac 이 실행 가능한 환경인지 빠르게 점검합니다.
 
 run 옵션:
@@ -86,10 +94,14 @@ run 옵션:
   --sound value        gangnam, 내장 사운드 이름, 또는 사용자 파일 경로 (기본값: %s)
   --short-sound value  짧은 slap 전용 사용자 파일 또는 내장 사운드
   --rapid-sound value  연속 slap 전용 사용자 파일 또는 내장 사운드
+  --preset name        /Users/heodongun/Desktop/효과음 안의 프리셋 이름 또는 random
+  --preset-dir path    프리셋 폴더 경로
 
 예시:
   sudo slap-mac-replica run
   sudo slap-mac-replica run --sound gangnam
+  sudo slap-mac-replica run --preset op-gangnam-style
+  sudo slap-mac-replica run --preset random
   sudo slap-mac-replica run --sound Sosumi
   sudo slap-mac-replica run --sound /path/to/custom.wav
   slap-mac-replica doctor
@@ -110,6 +122,8 @@ func parseRun(args []string) (Config, error) {
 	fs.StringVar(&runCfg.Sound, "sound", runCfg.Sound, "built-in sound name or custom file path")
 	fs.StringVar(&runCfg.ShortSound, "short-sound", runCfg.ShortSound, "sound for normal short slaps")
 	fs.StringVar(&runCfg.RapidSound, "rapid-sound", runCfg.RapidSound, "sound for rapid repeated slaps")
+	fs.StringVar(&runCfg.Preset, "preset", runCfg.Preset, "local effect preset name or random")
+	fs.StringVar(&runCfg.PresetDir, "preset-dir", runCfg.PresetDir, "local effect preset directory")
 
 	if err := fs.Parse(args); err != nil {
 		return Config{}, err
@@ -125,6 +139,22 @@ func parseRun(args []string) (Config, error) {
 	return Config{
 		Command: "run",
 		Run:     runCfg,
+	}, nil
+}
+
+func parsePresets(args []string) (Config, error) {
+	var presetDir string
+	fs := flag.NewFlagSet("presets", flag.ContinueOnError)
+	fs.SetOutput(io.Discard)
+	fs.StringVar(&presetDir, "preset-dir", presetDir, "local effect preset directory")
+
+	if err := fs.Parse(args); err != nil {
+		return Config{}, err
+	}
+
+	return Config{
+		Command:   "presets",
+		PresetDir: presetDir,
 	}, nil
 }
 

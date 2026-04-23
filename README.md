@@ -64,6 +64,14 @@ sudo slap-mac-replica run \
 
 `--short-sound` 는 짧게 칠 때 나오는 파일이고, `--rapid-sound` 는 연속으로 칠 때 나오는 파일입니다. `afplay` 가 재생할 수 있는 `wav`, `aiff`, `mp3` 등을 사용할 수 있습니다.
 
+데스크톱의 `효과음` 폴더를 프리셋처럼 쓰려면:
+
+```bash
+slap-mac-replica presets
+sudo slap-mac-replica run --preset op-gangnam-style
+sudo slap-mac-replica run --preset random
+```
+
 ## 설치 방법
 
 ### 1. GitHub 에서 바로 설치
@@ -188,6 +196,22 @@ sudo slap-mac-replica run \
 
 저작권이 있는 원곡에서 무단 추출한 클립을 저장소에 포함하거나 배포하지 마십시오. 직접 녹음했거나 사용 권리가 있는 파일만 지정해야 합니다.
 
+데스크톱 `효과음` 폴더의 음원을 프리셋으로 선택하기:
+
+```bash
+slap-mac-replica presets
+sudo slap-mac-replica run --preset op-gangnam-style
+sudo slap-mac-replica run --preset gopgopgop
+sudo slap-mac-replica run --preset random
+```
+
+기본 프리셋 폴더는 `/Users/heodongun/Desktop/효과음` 입니다. 다른 폴더를 쓰려면 `--preset-dir` 를 지정합니다.
+
+```bash
+slap-mac-replica presets --preset-dir /absolute/path/to/effects
+sudo slap-mac-replica run --preset random --preset-dir /absolute/path/to/effects
+```
+
 예를 들어 직접 준비한 두 클립이 다운로드 폴더에 있다면:
 
 ```bash
@@ -221,6 +245,7 @@ go build ./cmd/slap-mac-replica
 - 짧은 slap: `오빠 강남스타일`
 - 짧은 시간 안의 연속 slap 3회 이상: `예~~~`
 - 권리가 있는 로컬 클립을 쓰려면 `--short-sound`, `--rapid-sound` 를 지정합니다.
+- 데스크톱 `효과음` 폴더 안의 파일은 `--preset <이름>` 으로 쉽게 선택할 수 있습니다.
 
 ## 지원하는 내장 사운드
 
