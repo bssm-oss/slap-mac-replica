@@ -90,11 +90,25 @@ func runDetector(ctx context.Context, cfg config.RunConfig, stdout, stderr io.Wr
 	shortPlayer := audio.NewGangnamShortPlayer()
 	longPlayer := audio.NewGangnamLongPlayer()
 	if !audio.IsGangnamMode(cfg.Sound) {
-		player, playerErr := audio.NewPlayer(cfg.Sound)
-		if playerErr != nil {
-			return playerErr
+		player, err := audio.NewPlayer(cfg.Sound)
+		if err != nil {
+			return err
 		}
 		shortPlayer = player
+		longPlayer = player
+	}
+	if cfg.ShortSound != "" {
+		player, err := audio.NewPlayer(cfg.ShortSound)
+		if err != nil {
+			return fmt.Errorf("load --short-sound: %w", err)
+		}
+		shortPlayer = player
+	}
+	if cfg.RapidSound != "" {
+		player, err := audio.NewPlayer(cfg.RapidSound)
+		if err != nil {
+			return fmt.Errorf("load --rapid-sound: %w", err)
+		}
 		longPlayer = player
 	}
 
