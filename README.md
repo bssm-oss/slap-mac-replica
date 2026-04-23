@@ -32,6 +32,38 @@
 - 관리자 권한
 - Homebrew (선택 사항이지만 권장)
 
+## 빠른 다운로드 / 실행
+
+터미널에 아래 한 줄을 붙여 넣으면 GitHub 최신 릴리즈 바이너리를 바로 설치합니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bssm-oss/slap-mac-replica/main/script/install.sh | bash
+```
+
+설치 확인:
+
+```bash
+slap-mac-replica doctor
+```
+
+바로 실행:
+
+```bash
+sudo slap-mac-replica run
+```
+
+기본 모드에서는 짧게 치면 `오빠 강남스타일`, 짧은 시간 안에 연속으로 3회 이상 치면 `예~~~` 를 말합니다.
+
+직접 준비한 오디오 클립을 쓰려면:
+
+```bash
+sudo slap-mac-replica run \
+  --short-sound /absolute/path/to/oppa.wav \
+  --rapid-sound /absolute/path/to/yeah.wav
+```
+
+`--short-sound` 는 짧게 칠 때 나오는 파일이고, `--rapid-sound` 는 연속으로 칠 때 나오는 파일입니다. `afplay` 가 재생할 수 있는 `wav`, `aiff`, `mp3` 등을 사용할 수 있습니다.
+
 ## 설치 방법
 
 ### 1. GitHub 에서 바로 설치
@@ -59,6 +91,13 @@ sudo slap-mac-replica run
 ```text
 https://github.com/bssm-oss/slap-mac-replica/releases/latest/download/slap-mac-replica_darwin_arm64.tar.gz
 ```
+
+GitHub 웹사이트에서 직접 받으려면:
+
+1. <https://github.com/bssm-oss/slap-mac-replica/releases/latest> 로 이동합니다.
+2. `Assets` 를 펼칩니다.
+3. `slap-mac-replica_darwin_arm64.tar.gz` 를 다운로드합니다.
+4. 압축을 풀고 `slap-mac-replica` 바이너리를 실행합니다.
 
 ### 2. Homebrew 로 설치
 
@@ -148,6 +187,14 @@ sudo slap-mac-replica run \
 ```
 
 저작권이 있는 원곡에서 무단 추출한 클립을 저장소에 포함하거나 배포하지 마십시오. 직접 녹음했거나 사용 권리가 있는 파일만 지정해야 합니다.
+
+예를 들어 직접 준비한 두 클립이 다운로드 폴더에 있다면:
+
+```bash
+sudo slap-mac-replica run \
+  --short-sound "$HOME/Downloads/oppa.wav" \
+  --rapid-sound "$HOME/Downloads/yeah.wav"
+```
 
 임계값과 쿨다운 조정:
 
