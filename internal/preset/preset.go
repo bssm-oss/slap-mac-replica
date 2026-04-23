@@ -10,8 +10,11 @@ import (
 )
 
 const (
-	DefaultDirectory = "/Users/heodongun/Desktop/효과음"
-	RandomName       = "random"
+	BundledDirectory       = "/Library/Application Support/slap-mac-replica/presets"
+	HomebrewDirectory      = "/opt/homebrew/share/slap-mac-replica/presets"
+	IntelHomebrewDirectory = "/usr/local/share/slap-mac-replica/presets"
+	LegacyDesktopDirectory = "/Users/heodongun/Desktop/효과음"
+	RandomName             = "random"
 )
 
 var supportedExtensions = map[string]bool{
@@ -28,10 +31,21 @@ type Preset struct {
 }
 
 func List(dir string) ([]Preset, error) {
-	if strings.TrimSpace(dir) == "" {
-		dir = DefaultDirectory
+	if strings.TrimSpace(dir) != "" {
+		return listDirectory(dir)
 	}
 
+	for _, candidate := range defaultDirectories() {
+		presets, err := listDirectory(candidate)
+		if err == nil && len(presets) > 0 {
+			return presets, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no preset directory found; install presets or pass --preset-dir")
+}
+
+func listDirectory(dir string) ([]Preset, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, fmt.Errorf("read preset directory %s: %w", dir, err)
@@ -60,6 +74,21 @@ func List(dir string) ([]Preset, error) {
 	})
 
 	return presets, nil
+}
+
+func defaultDirectories() []string {
+	dirs := []string{
+		BundledDirectory,
+		HomebrewDirectory,
+		IntelHomebrewDirectory,
+		LegacyDesktopDirectory,
+	}
+
+	if exe, err := os.Executable(); err == nil {
+		dirs = append(dirs, filepath.Join(filepath.Dir(exe), "presets"))
+	}
+
+	return dirs
 }
 
 func Resolve(dir string, name string) (Preset, error) {
