@@ -27,7 +27,7 @@ func TestParseDefaultsToRun(t *testing.T) {
 }
 
 func TestParseRunFlags(t *testing.T) {
-	cfg, err := Parse([]string{"run", "--threshold", "0.12", "--cooldown", "2s", "--sound", "Sosumi", "--short-sound", "/tmp/oppa.wav", "--rapid-sound", "/tmp/yeah.wav"})
+	cfg, err := Parse([]string{"run", "--threshold", "0.12", "--cooldown", "2s", "--sound", "Sosumi", "--short-sound", "/tmp/oppa.wav", "--rapid-sound", "/tmp/yeah.wav", "--preset", "op-gangnam-style", "--preset-dir", "/tmp/presets"})
 	if err != nil {
 		t.Fatalf("Parse returned error: %v", err)
 	}
@@ -47,6 +47,12 @@ func TestParseRunFlags(t *testing.T) {
 	if cfg.Run.RapidSound != "/tmp/yeah.wav" {
 		t.Fatalf("expected rapid sound path, got %q", cfg.Run.RapidSound)
 	}
+	if cfg.Run.Preset != "op-gangnam-style" {
+		t.Fatalf("expected preset name, got %q", cfg.Run.Preset)
+	}
+	if cfg.Run.PresetDir != "/tmp/presets" {
+		t.Fatalf("expected preset dir, got %q", cfg.Run.PresetDir)
+	}
 }
 
 func TestParseDoctor(t *testing.T) {
@@ -63,6 +69,20 @@ func TestParseDoctor(t *testing.T) {
 func TestParseVersion(t *testing.T) {
 	if _, err := Parse([]string{"version"}); !errors.Is(err, ErrVersionRequested) {
 		t.Fatalf("expected ErrVersionRequested, got %v", err)
+	}
+}
+
+func TestParsePresets(t *testing.T) {
+	cfg, err := Parse([]string{"presets", "--preset-dir", "/tmp/effects"})
+	if err != nil {
+		t.Fatalf("Parse returned error: %v", err)
+	}
+
+	if cfg.Command != "presets" {
+		t.Fatalf("expected presets command, got %q", cfg.Command)
+	}
+	if cfg.PresetDir != "/tmp/effects" {
+		t.Fatalf("expected preset dir, got %q", cfg.PresetDir)
 	}
 }
 
