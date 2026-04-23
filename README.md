@@ -34,7 +34,33 @@
 
 ## 설치 방법
 
-### 1. Homebrew 로 설치
+### 1. GitHub 에서 바로 설치
+
+가장 쉬운 방법입니다. GitHub 최신 릴리즈에서 바이너리를 바로 내려받아 `/usr/local/bin/slap-mac-replica` 에 설치합니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bssm-oss/slap-mac-replica/main/script/install.sh | bash
+```
+
+설치 뒤 확인:
+
+```bash
+slap-mac-replica doctor
+```
+
+실행:
+
+```bash
+sudo slap-mac-replica run
+```
+
+수동으로 직접 다운로드하려면 아래 파일을 받으면 됩니다.
+
+```text
+https://github.com/bssm-oss/slap-mac-replica/releases/latest/download/slap-mac-replica_darwin_arm64.tar.gz
+```
+
+### 2. Homebrew 로 설치
 
 릴리즈가 올라가 있으면 아래 명령으로 설치할 수 있습니다.
 
@@ -67,7 +93,7 @@ sudo brew services start slap-mac-replica
 sudo brew services stop slap-mac-replica
 ```
 
-### 2. 소스에서 직접 실행
+### 3. 소스에서 직접 실행
 
 ```bash
 go build ./cmd/slap-mac-replica
