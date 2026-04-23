@@ -5,6 +5,7 @@ repo="bssm-oss/slap-mac-replica"
 asset="slap-mac-replica_darwin_arm64.tar.gz"
 download_url="https://github.com/${repo}/releases/latest/download/${asset}"
 install_dir="${SLAP_MAC_INSTALL_DIR:-/usr/local/bin}"
+preset_dir="${SLAP_MAC_PRESET_DIR:-/Library/Application Support/slap-mac-replica/presets}"
 binary_name="slap-mac-replica"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
@@ -35,9 +36,20 @@ else
   sudo install "$tmpdir/$binary_name" "$target"
 fi
 
+if [[ -d "$tmpdir/presets" ]]; then
+  mkdir -p "$preset_dir" 2>/dev/null || sudo mkdir -p "$preset_dir"
+  if [[ -w "$preset_dir" ]]; then
+    cp -R "$tmpdir/presets/." "$preset_dir/"
+  else
+    sudo cp -R "$tmpdir/presets/." "$preset_dir/"
+  fi
+  echo "Installed presets: $preset_dir"
+fi
+
 echo "Installed: $target"
 "$target" version
 echo
 echo "Next:"
 echo "  $target doctor"
+echo "  $target presets"
 echo "  sudo $target run"

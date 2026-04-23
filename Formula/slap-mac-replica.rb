@@ -8,6 +8,7 @@ class SlapMacReplica < Formula
   def install
     odie "slap-mac-replica requires an Apple Silicon Mac." if Hardware::CPU.intel?
     bin.install "slap-mac-replica"
+    pkgshare.install "presets"
   end
 
   service do
