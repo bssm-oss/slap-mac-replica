@@ -12,6 +12,7 @@ import (
 	"github.com/bssm-oss/slap-mac-replica/internal/audio"
 	"github.com/bssm-oss/slap-mac-replica/internal/config"
 	"github.com/bssm-oss/slap-mac-replica/internal/platform"
+	"github.com/bssm-oss/slap-mac-replica/internal/preset"
 	"github.com/taigrr/apple-silicon-accelerometer/detector"
 	"github.com/taigrr/apple-silicon-accelerometer/sensor"
 	"github.com/taigrr/apple-silicon-accelerometer/shm"
@@ -30,11 +31,32 @@ func Execute(ctx context.Context, cfg config.Config, stdout, stderr io.Writer) e
 	switch cfg.Command {
 	case "doctor":
 		return runDoctor(stdout)
+	case "presets":
+		return runPresets(cfg.PresetDir, stdout)
 	case "run":
 		return runDetector(ctx, cfg.Run, stdout, stderr)
 	default:
 		return fmt.Errorf("unsupported command %q", cfg.Command)
 	}
+}
+
+func runPresets(dir string, stdout io.Writer) error {
+	presets, err := preset.List(dir)
+	if err != nil {
+		return err
+	}
+	if len(presets) == 0 {
+		fmt.Fprintln(stdout, "no presets found")
+		return nil
+	}
+
+	fmt.Fprintln(stdout, "available presets:")
+	fmt.Fprintf(stdout, "  %s (랜덤 선택)\n", preset.RandomName)
+	for _, item := range presets {
+		fmt.Fprintf(stdout, "  %s\t%s\n", item.Name, item.Path)
+	}
+
+	return nil
 }
 
 func runDoctor(stdout io.Writer) error {
@@ -89,7 +111,18 @@ func runDetector(ctx context.Context, cfg config.RunConfig, stdout, stderr io.Wr
 
 	shortPlayer := audio.NewGangnamShortPlayer()
 	longPlayer := audio.NewGangnamLongPlayer()
-	if !audio.IsGangnamMode(cfg.Sound) {
+	if cfg.Preset != "" {
+		item, err := preset.Resolve(cfg.PresetDir, cfg.Preset)
+		if err != nil {
+			return err
+		}
+		player, err := audio.NewPlayer(item.Path)
+		if err != nil {
+			return fmt.Errorf("load --preset %s: %w", cfg.Preset, err)
+		}
+		shortPlayer = player
+		longPlayer = player
+	} else if !audio.IsGangnamMode(cfg.Sound) {
 		player, err := audio.NewPlayer(cfg.Sound)
 		if err != nil {
 			return err
