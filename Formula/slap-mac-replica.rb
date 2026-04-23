@@ -1,8 +1,8 @@
 class SlapMacReplica < Formula
   desc "Play a sound when you physically slap an Apple Silicon MacBook"
   homepage "https://github.com/bssm-oss/slap-mac-replica"
-  url "https://github.com/bssm-oss/slap-mac-replica/releases/download/v0.1.1/slap-mac-replica_0.1.1_darwin_arm64.tar.gz"
-  sha256 "9208b8aa42b3541a976998ca002b56b04ca67124d2fc9e9c53cc508f238ed413"
+  url "https://github.com/bssm-oss/slap-mac-replica/releases/download/v0.1.2/slap-mac-replica_0.1.2_darwin_arm64.tar.gz"
+  sha256 "f56b5907475b7cffe3c823c0077b12621574a329c9b4e18a637974ed59b496af"
   license "MIT"
 
   def install
