@@ -27,6 +27,7 @@ jobs:
           mkdir -p dist
           go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o dist/slap-mac-replica ./cmd/slap-mac-replica
           tar -C dist -czf "dist/slap-mac-replica_${VERSION}_darwin_arm64.tar.gz" slap-mac-replica
+          cp "dist/slap-mac-replica_${VERSION}_darwin_arm64.tar.gz" "dist/slap-mac-replica_darwin_arm64.tar.gz"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
